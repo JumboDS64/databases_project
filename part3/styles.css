@@ -17,3 +17,7 @@ body {
 	outline: 1px;
 	outline-style: outset;
 }
+.chartDiv {
+	height: 400px;
+
+}

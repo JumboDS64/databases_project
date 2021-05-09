@@ -8,7 +8,7 @@ begin
 	SELECT customer.email
     FROM customer
     WHERE customer.email = email
-		AND customer.password = pw
+		AND customer.password = md5(pw)
 	INTO vemail;
     IF (vemail IS NOT NULL) THEN
 		IF (vtoken IS NULL) THEN

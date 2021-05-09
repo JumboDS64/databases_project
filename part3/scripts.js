@@ -35,7 +35,7 @@ function toggleTab_logout(tabPrefix) {
 	document.getElementById(tabPrefix + "_in").style.display = "none";
 }
 
-function request_getFlights() {
+/*function request_getFlights() {
  	let xhr = new XMLHttpRequest();
  	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -46,13 +46,19 @@ function request_getFlights() {
 	document.getElementById("flightsTable").innerHTML = "Loading...";
 	xhr.open("GET", "request?case=getFlights", true);
 	xhr.send();
+}*/
+function request_gen_SearchFlights() {
+ 	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			renderData_flights_gen(resJson[0]);
+		}
+	};
+	xhr.open("GET", "request?case=get_gen_SearchFlights&deploc=" + encodeURIComponent(document.getElementById("gen_search_flights_deploc").value) + "&arrloc=" + encodeURIComponent(document.getElementById("gen_search_flights_arrloc").value), true);
+	xhr.send();
 }
 
-
-function request_getCheckValidSession() {
-	return true;
-
-}
 function request_logIn(type) {
  	let xhr = new XMLHttpRequest();
  	xhr.onreadystatechange = function() {
@@ -130,6 +136,36 @@ function request_logOut(type) {
 	}
 	xhr.send();
 }
+function request_cust_register() {
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			writeStatusBar("Customer registered!");
+		}
+	};
+	xhr.open("POST", "request?case=post_cust_register" + "&name=" + encodeURIComponent(document.getElementById("regi_cust_name").value) + "&email=" + encodeURIComponent(document.getElementById("regi_cust_email").value) + "&pw=" + encodeURIComponent(document.getElementById("regi_cust_pw").value) + "&addr_buildnum=" + encodeURIComponent(document.getElementById("regi_cust_addr_buildnum").value) + "&addr_street=" + encodeURIComponent(document.getElementById("regi_cust_addr_street").value) + "&addr_city=" + encodeURIComponent(document.getElementById("regi_cust_addr_city").value) + "&addr_state=" + encodeURIComponent(document.getElementById("regi_cust_addr_state").value) + "&phonenum=" + encodeURIComponent(document.getElementById("regi_cust_phonenum").value) + "&dob=" + encodeURIComponent(document.getElementById("regi_cust_dob").value), true);
+	xhr.send();
+}
+function request_agen_register() {
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			writeStatusBar("Booking agent registered!");
+		}
+	};
+	xhr.open("POST", "request?case=post_agen_register" + "&email=" + encodeURIComponent(document.getElementById("regi_agen_email").value) + "&pw=" + encodeURIComponent(document.getElementById("regi_agen_pw").value), true);
+	xhr.send();
+}
+function request_staf_register() {
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			writeStatusBar("Airline staff registered!");
+		}
+	};
+	xhr.open("POST", "request?case=post_staf_register" + "&username=" + encodeURIComponent(document.getElementById("regi_staf_username").value) + "&airline_name=" + encodeURIComponent(document.getElementById("regi_staf_airlinename").value) + "&pw=" + encodeURIComponent(document.getElementById("regi_staf_pw").value) + "&first_name=" + encodeURIComponent(document.getElementById("regi_staf_firstname").value) + "&last_name=" + encodeURIComponent(document.getElementById("regi_staf_lastname").value) + "&dob=" + encodeURIComponent(document.getElementById("regi_staf_dob").value), true);
+	xhr.send();
+}
 
 function request_cust_ViewFlights() {
 	if(cust_sesToken == null) return; //poo
@@ -168,6 +204,147 @@ function request_staf_ViewFlights() {
 		}
 	};
 	xhr.open("GET", "request?case=get_staf_ViewFlights&token="+staf_sesToken+"&username="+staf_username+"&startdate="+encodeURIComponent(document.getElementById("staf_viewflights_start").value)+"&enddate="+encodeURIComponent(document.getElementById("staf_viewflights_end").value), true);
+	xhr.send();
+}
+/**function request_staf_GetRevenue() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson); //chart later
+			
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetRevenue&token="+staf_sesToken+"&username="+staf_username+"&startdate="+encodeURIComponent(document.getElementById("staf_viewflights_start").value)+"&enddate="+encodeURIComponent(document.getElementById("staf_viewflights_end").value), true);
+	xhr.send();
+}**/
+function request_staf_GetRevenue_byMonth() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Revenue by month (total = " + resJson[1][0].total_rev + ")"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].mon, y: resJson[0][i].rev });
+			}
+			var chart = new CanvasJS.Chart("stafChart", nuJson);
+			chart.render();
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetRevenue_byMonth&token="+staf_sesToken+"&username="+staf_username+"&startdate="+encodeURIComponent(document.getElementById("staf_viewflights_start").value)+"&enddate="+encodeURIComponent(document.getElementById("staf_viewflights_end").value), true);
+	xhr.send();
+}
+function request_staf_GetRevenue_byType() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Revenue in the past month"
+				},
+				data: [
+					{
+						type: "pie",
+						dataPoints: [
+							{ label: "Direct", y: resJson[0][0].rev_direct_month },
+							{ label: "Indirect", y: resJson[0][0].rev_indirect_month }
+						]
+					}
+				]
+			};
+			var chart = new CanvasJS.Chart("stafChart", nuJson);
+			chart.render();
+			nuJson = {
+				title: {
+					text: "Revenue in the past year"
+				},
+				data: [
+					{
+						type: "pie",
+						dataPoints: [
+							{ label: "Direct", y: resJson[0][0].rev_direct_year },
+							{ label: "Indirect", y: resJson[0][0].rev_indirect_year }
+						]
+					}
+				]
+			};
+			var chart = new CanvasJS.Chart("stafChart2", nuJson);
+			chart.render();
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetRevenue_byType&token="+staf_sesToken+"&username="+staf_username, true);
+	xhr.send();
+}
+function request_staf_GetTopDestinations() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Top 3 destinations in the past 3 months"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].city, y: resJson[0][i].tix });
+			}
+			var chart = new CanvasJS.Chart("stafChart", nuJson);
+			chart.render();
+			nuJson = {
+				title: {
+					text: "Top 3 destinations in the past year"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].city, y: resJson[0][i].tix });
+			}
+			var chart = new CanvasJS.Chart("stafChart2", nuJson);
+			chart.render();
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetTopDestinations&token="+staf_sesToken+"&username="+staf_username, true);
 	xhr.send();
 }
 function request_cust_SearchFlights() {
@@ -255,7 +432,27 @@ function request_cust_TrackSpending() {
  	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var resJson = JSON.parse(this.response);
-			console.log(resJson); //will add barchart later
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Spending by month"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].mon, y: resJson[0][i].spent });
+			}
+			var chart = new CanvasJS.Chart("custChart", nuJson);
+			chart.render();
 		}
 	};
 	xhr.open("GET", "request?case=get_cust_TrackSpending&token="+cust_sesToken+"&email="+cust_email+"&startdate="+encodeURIComponent(document.getElementById("cust_trackspending_start").value)+"&enddate="+encodeURIComponent(document.getElementById("cust_trackspending_end").value), true);
@@ -267,7 +464,27 @@ function request_agen_TrackSpending() {
  	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var resJson = JSON.parse(this.response);
-			console.log(resJson); //will add barchart later
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Commission by month"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].mon, y: resJson[0][i].rev });
+			}
+			var chart = new CanvasJS.Chart("agenChart", nuJson);
+			chart.render();
 		}
 	};
 	xhr.open("GET", "request?case=get_agen_TrackSpending&token="+agen_sesToken+"&id="+agen_id+"&startdate="+encodeURIComponent(document.getElementById("agen_trackspending_start").value)+"&enddate="+encodeURIComponent(document.getElementById("agen_trackspending_start").value), true);
@@ -279,7 +496,27 @@ function request_agen_GetTopCustomers_Tix() {
  	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var resJson = JSON.parse(this.response);
-			console.log(resJson); //will add chart later
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Top 5 customers by tickets bought"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].customer_email, y: resJson[0][i].sum_tickets });
+			}
+			var chart = new CanvasJS.Chart("agenChart", nuJson);
+			chart.render();
 		}
 	};
 	xhr.open("GET", "request?case=get_agen_GetTopCustomers_Tix&token="+agen_sesToken+"&id="+agen_id, true);
@@ -291,7 +528,27 @@ function request_agen_GetTopCustomers_Commish() {
  	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var resJson = JSON.parse(this.response);
-			console.log(resJson); //will add chart later
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Top 5 customers by commission earned from"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].customer_email, y: resJson[0][i].sum_price });
+			}
+			var chart = new CanvasJS.Chart("agenChart", nuJson);
+			chart.render();
 		}
 	};
 	xhr.open("GET", "request?case=get_agen_GetTopCustomers_Commish&token="+agen_sesToken+"&id="+agen_id, true);
@@ -305,8 +562,166 @@ function request_staf_CreateFlight() {
 			var resJson = JSON.parse(this.response);
 		}
 	};
-	xhr.open("POST", "request?case=get_staf_CreateFlight&token="+staf_sesToken+"&username="+staf_username+"&baseprice="+encodeURIComponent(document.getElementById("staf_createflight_baseprice").value)+"&deploc="+encodeURIComponent(document.getElementById("staf_createflight_deploc").value)+"&depdate="+encodeURIComponent(document.getElementById("staf_createflight_depdate").value)+"&arrloc="+encodeURIComponent(document.getElementById("staf_createflight_arrloc").value)+"&arrdate="+encodeURIComponent(document.getElementById("staf_createflight_arrdate").value), true);
+	xhr.open("POST", "request?case=post_staf_CreateFlight&token="+staf_sesToken+"&username="+staf_username+"&baseprice="+encodeURIComponent(document.getElementById("staf_createflight_baseprice").value)+"&deploc="+encodeURIComponent(document.getElementById("staf_createflight_deploc").value)+"&depdate="+encodeURIComponent(document.getElementById("staf_createflight_depdate").value)+"&arrloc="+encodeURIComponent(document.getElementById("staf_createflight_arrloc").value)+"&arrdate="+encodeURIComponent(document.getElementById("staf_createflight_arrdate").value), true);
 	xhr.send();
+}
+function request_staf_ChangeFlightStatus() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+		}
+	};
+	xhr.open("POST", "request?case=post_staf_ChangeFlightStatus&token="+staf_sesToken+"&username="+staf_username+"&status="+encodeURIComponent(document.getElementById("staf_changeflightstatus_status").value)+"&flightnum="+encodeURIComponent(document.getElementById("staf_changeflightstatus_flightnum").value)+"&deptime="+encodeURIComponent(document.getElementById("staf_changeflightstatus_deptime").value), true);
+	xhr.send();
+}
+function staf_fillChangeFlightFields(flightnum, deptime) {
+	document.getElementById("staf_changeflightstatus_flightnum").value = flightnum;
+	document.getElementById("staf_changeflightstatus_deptime").value = convertJSDateToSQL(deptime);
+	document.getElementById("staf_viewflightreviews_flightnum").value = flightnum;
+	document.getElementById("staf_viewflightreviews_deptime").value = convertJSDateToSQL(deptime);
+}
+function request_staf_CreateAirplane() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+		}
+	};
+	xhr.open("POST", "request?case=post_staf_CreateAirplane&token="+staf_sesToken+"&username="+staf_username+"&status="+encodeURIComponent(document.getElementById("staf_changeflightstatus_status").value)+"&numseats="+encodeURIComponent(document.getElementById("staf_createairplane_numseats").value), true);
+	xhr.send();
+}
+function request_staf_CreateAirport() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+		}
+	};
+	xhr.open("POST", "request?case=post_staf_CreateAirport&token="+staf_sesToken+"&username="+staf_username+"&name="+encodeURIComponent(document.getElementById("staf_createairport_name").value)+"&city="+encodeURIComponent(document.getElementById("staf_createairport_city").value), true);
+	xhr.send();
+}
+function request_staf_ViewFlightReviews() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			renderData_flightReviews_staf(resJson[0]);
+		}
+	};
+	xhr.open("GET", "request?case=post_staf_ViewFlightReviews&token="+staf_sesToken+"&username="+staf_username+"&flightnum="+encodeURIComponent(document.getElementById("staf_viewflightreviews_flightnum").value)+"&deptime="+encodeURIComponent(document.getElementById("staf_viewflightreviews_deptime").value), true);
+	xhr.send();
+}
+function request_staf_GetAgen_Tix() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Top 5 booking agents by tickets sold"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].booking_agent_ID, y: resJson[0][i].sum_tickets });
+			}
+			var chart = new CanvasJS.Chart("stafChart", nuJson);
+			chart.render();
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetAgen_Tix&token="+staf_sesToken+"&username="+staf_username, true);
+	xhr.send();
+}
+function request_staf_GetAgen_Commish() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			var nuJson = {
+				title: {
+					text: "Top 5 booking agents by commission earned"
+				},
+				axisY:{
+					minimum: 0
+				},
+				data: [
+					{
+						type: "column",
+						dataPoints: [
+						]
+					}
+				]
+			};
+			for(var i = 0; i < resJson[0].length; i++) {
+				nuJson.data[0].dataPoints.push({ label: resJson[0][i].booking_agent_ID, y: resJson[0][i].sum_price });
+			}
+			var chart = new CanvasJS.Chart("stafChart", nuJson);
+			chart.render();
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetAgen_Commish&token="+staf_sesToken+"&username="+staf_username, true);
+	xhr.send();
+}
+function request_staf_GetTopCustomers() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			renderData_customersByTix_staf(resJson[0]);
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetTopCustomers&token="+staf_sesToken+"&username="+staf_username, true);
+	xhr.send();
+}
+function request_staf_GetCustomers() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			renderData_customers_staf(resJson[0]);
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetCustomers&token="+staf_sesToken+"&username="+staf_username, true);
+	xhr.send();
+}
+function request_staf_GetCustFlights() {
+	if(staf_sesToken == null) return; //poo
+	let xhr = new XMLHttpRequest();
+ 	xhr.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var resJson = JSON.parse(this.response);
+			console.log(resJson);
+			renderData_ticketflights_staf(resJson[0]);
+		}
+	};
+	xhr.open("GET", "request?case=get_staf_GetCustFlights&token="+staf_sesToken+"&username="+staf_username+"&email="+encodeURIComponent(document.getElementById("staf_viewcustomerflights_email").value), true);
+	xhr.send();
+}
+function staf_fillCustFlightsField(email) {
+	document.getElementById("staf_viewcustomerflights_email").value = email;
 }
 
 function writeStatusBar(text) {
@@ -314,8 +729,8 @@ function writeStatusBar(text) {
 }
  
  
-function renderData_flights(json) {
-	var tableBase = document.getElementById("theTable");
+function renderData_flights_gen(json) {
+	var tableBase = document.getElementById("genTable");
 	tableBase.innerHTML = "";
 	//document.getElementById("buto").innerHTML = json[0].flight_num;
 	var newRow = document.createElement("tr");
@@ -362,10 +777,10 @@ function renderData_flights_cust(json) {
 	for(i in json) {
 		newRow = document.createElement("tr");
 		newRow.setAttribute("class", "tableN_row");
-		var button_buyTix = document.createElement("button");
-		button_buyTix.setAttribute("onclick", "cust_fillPurchaseTicketFields(\'"+json[i].flight_num+"\', \'"+json[i].airline_name+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
-		button_buyTix.appendChild(document.createTextNode("Select"));
-		newRow.appendChild(button_buyTix);
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "cust_fillPurchaseTicketFields(\'"+json[i].flight_num+"\', \'"+json[i].airline_name+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
 		newRow.appendChild(create_simpleTableBox(json[i].flight_num));
 		newRow.appendChild(create_simpleTableBox(json[i].status));
 		newRow.appendChild(create_simpleTableBox(json[i].base_price));
@@ -396,10 +811,10 @@ function renderData_flights_agen(json) {
 	for(i in json) {
 		newRow = document.createElement("tr");
 		newRow.setAttribute("class", "tableN_row");
-		var button_buyTix = document.createElement("button");
-		button_buyTix.setAttribute("onclick", "agen_fillPurchaseTicketFields(\'"+json[i].flight_num+"\', \'"+json[i].airline_name+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
-		button_buyTix.appendChild(document.createTextNode("Select"));
-		newRow.appendChild(button_buyTix);
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "agen_fillPurchaseTicketFields(\'"+json[i].flight_num+"\', \'"+json[i].airline_name+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
 		newRow.appendChild(create_simpleTableBox(json[i].flight_num));
 		newRow.appendChild(create_simpleTableBox(json[i].status));
 		newRow.appendChild(create_simpleTableBox(json[i].base_price));
@@ -416,7 +831,7 @@ function renderData_flights_staf(json) {
 	tableBase.innerHTML = "";
 	var newRow = document.createElement("tr");
 	newRow.setAttribute("class", "tableN_row");
-	//newRow.appendChild(create_simpleTableHeader(""));
+	newRow.appendChild(create_simpleTableHeader(""));
 	newRow.appendChild(create_simpleTableHeader("Flight #"));
 	newRow.appendChild(create_simpleTableHeader("Status"));
 	newRow.appendChild(create_simpleTableHeader("Base Price"));
@@ -428,10 +843,10 @@ function renderData_flights_staf(json) {
 	for(i in json) {
 		newRow = document.createElement("tr");
 		newRow.setAttribute("class", "tableN_row");
-		//var button_buyTix = document.createElement("button");
-		//button_buyTix.setAttribute("onclick", "agen_fillPurchaseTicketFields(\'"+json[i].flight_num+"\', \'"+json[i].airline_name+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
-		//button_buyTix.appendChild(document.createTextNode("Select"));
-		//newRow.appendChild(button_buyTix);
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "staf_fillChangeFlightFields(\'"+json[i].flight_num+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
 		newRow.appendChild(create_simpleTableBox(json[i].flight_num));
 		newRow.appendChild(create_simpleTableBox(json[i].status));
 		newRow.appendChild(create_simpleTableBox(json[i].base_price));
@@ -463,10 +878,10 @@ function renderData_ticketflights_cust(json) {
 	for(i in json) {
 		newRow = document.createElement("tr");
 		newRow.setAttribute("class", "tableN_row");
-		var button_buyTix = document.createElement("button");
-		button_buyTix.setAttribute("onclick", "cust_fillRateFlightFields(\'"+json[i].ticket_ID+"\');");
-		button_buyTix.appendChild(document.createTextNode("Select"));
-		newRow.appendChild(button_buyTix);
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "cust_fillRateFlightFields(\'"+json[i].ticket_ID+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
 		newRow.appendChild(create_simpleTableBox(json[i].booking_agent_ID));
 		newRow.appendChild(create_simpleTableBox(json[i].sold_date));
 		newRow.appendChild(create_simpleTableBox(json[i].flight_num));
@@ -509,6 +924,117 @@ function renderData_ticketflights_agen(json) {
 		newRow.appendChild(create_simpleTableBox(correctTheDamnDateString(json[i].dep_datetime)));
 		newRow.appendChild(create_simpleTableBox(json[i].arr_airport_name));
 		newRow.appendChild(create_simpleTableBox(correctTheDamnDateString(json[i].arr_datetime)));
+		tableBase.appendChild(newRow);
+	}
+}
+function renderData_ticketflights_staf(json) {
+	var tableBase = document.getElementById("stafTable");
+	tableBase.innerHTML = "";
+	var newRow = document.createElement("tr");
+	newRow.setAttribute("class", "tableN_row");
+	newRow.appendChild(create_simpleTableHeader(""));
+	newRow.appendChild(create_simpleTableHeader("Customer"));
+	newRow.appendChild(create_simpleTableHeader("Purchase Date"));
+	newRow.appendChild(create_simpleTableHeader("Flight #"));
+	newRow.appendChild(create_simpleTableHeader("Status"));
+	newRow.appendChild(create_simpleTableHeader("Base Price"));
+	newRow.appendChild(create_simpleTableHeader("Airline"));
+	newRow.appendChild(create_simpleTableHeader("Departure Loc."));
+	newRow.appendChild(create_simpleTableHeader("Departure Time"));
+	newRow.appendChild(create_simpleTableHeader("Arrival Loc."));
+	newRow.appendChild(create_simpleTableHeader("Arrival Time"));
+	tableBase.appendChild(newRow);
+	for(i in json) {
+		newRow = document.createElement("tr");
+		newRow.setAttribute("class", "tableN_row");
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "staf_fillChangeFlightFields(\'"+json[i].flight_num+"\', \'"+correctTheDamnDateString(json[i].dep_datetime)+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
+		newRow.appendChild(create_simpleTableBox(json[i].customer_email));
+		newRow.appendChild(create_simpleTableBox(json[i].sold_date));
+		newRow.appendChild(create_simpleTableBox(json[i].flight_num));
+		newRow.appendChild(create_simpleTableBox(json[i].status));
+		newRow.appendChild(create_simpleTableBox(json[i].base_price));
+		newRow.appendChild(create_simpleTableBox(json[i].airline_name));
+		newRow.appendChild(create_simpleTableBox(json[i].dep_airport_name));
+		newRow.appendChild(create_simpleTableBox(correctTheDamnDateString(json[i].dep_datetime)));
+		newRow.appendChild(create_simpleTableBox(json[i].arr_airport_name));
+		newRow.appendChild(create_simpleTableBox(correctTheDamnDateString(json[i].arr_datetime)));
+		tableBase.appendChild(newRow);
+	}
+}
+function renderData_flightReviews_staf(json) {
+	var tableBase = document.getElementById("stafTable");
+	tableBase.innerHTML = "";
+	var newRow = document.createElement("tr");
+	newRow.setAttribute("class", "tableN_row");
+	newRow.appendChild(create_simpleTableHeader("Customer"));
+	newRow.appendChild(create_simpleTableHeader("Review Date"));
+	newRow.appendChild(create_simpleTableHeader("Rating (0-9)"));
+	newRow.appendChild(create_simpleTableHeader("Comment"));
+	tableBase.appendChild(newRow);
+	var avrage = 0;
+	for(i in json) {
+		newRow = document.createElement("tr");
+		newRow.setAttribute("class", "tableN_row");
+		newRow.appendChild(create_simpleTableBox(json[i].customer_email));
+		newRow.appendChild(create_simpleTableBox(correctTheDamnDateString(json[i].publish_date)));
+		newRow.appendChild(create_simpleTableBox(json[i].stars));
+		newRow.appendChild(create_simpleTableBox(json[i].comment));
+		tableBase.appendChild(newRow);
+		avrage += json[i].stars;
+	}
+	avrage /= json.length;
+	newRow = document.createElement("tr");
+	newRow.setAttribute("class", "tableN_row");
+	newRow.appendChild(create_simpleTableBox("Average rating:"));
+	newRow.appendChild(create_simpleTableBox(""));
+	newRow.appendChild(create_simpleTableBox(avrage));
+	newRow.appendChild(create_simpleTableBox(""));
+	tableBase.appendChild(newRow);
+}
+function renderData_customers_staf(json) {
+	var tableBase = document.getElementById("stafTable");
+	tableBase.innerHTML = "";
+	var newRow = document.createElement("tr");
+	newRow.setAttribute("class", "tableN_row");
+	newRow.appendChild(create_simpleTableHeader(""));
+	newRow.appendChild(create_simpleTableHeader("Name"));
+	newRow.appendChild(create_simpleTableHeader("Email"));
+	tableBase.appendChild(newRow);
+	for(i in json) {
+		newRow = document.createElement("tr");
+		newRow.setAttribute("class", "tableN_row");
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "staf_fillCustFlightsField(\'"+json[i].email+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
+		newRow.appendChild(create_simpleTableBox(json[i].name));
+		newRow.appendChild(create_simpleTableBox(json[i].email));
+		tableBase.appendChild(newRow);
+	}
+}
+function renderData_customersByTix_staf(json) {
+	var tableBase = document.getElementById("stafTable");
+	tableBase.innerHTML = "";
+	var newRow = document.createElement("tr");
+	newRow.setAttribute("class", "tableN_row");
+	newRow.appendChild(create_simpleTableHeader(""));
+	newRow.appendChild(create_simpleTableHeader("Name"));
+	newRow.appendChild(create_simpleTableHeader("Email"));
+	newRow.appendChild(create_simpleTableHeader("Tickets sold"));
+	tableBase.appendChild(newRow);
+	for(i in json) {
+		newRow = document.createElement("tr");
+		newRow.setAttribute("class", "tableN_row");
+		var button_select = document.createElement("button");
+		button_select.setAttribute("onclick", "staf_fillCustFlightsField(\'"+json[i].email+"\');");
+		button_select.appendChild(document.createTextNode("Select"));
+		newRow.appendChild(button_select);
+		newRow.appendChild(create_simpleTableBox(json[i].name));
+		newRow.appendChild(create_simpleTableBox(json[i].email));
+		newRow.appendChild(create_simpleTableBox(json[i].sum_tickets));
 		tableBase.appendChild(newRow);
 	}
 }

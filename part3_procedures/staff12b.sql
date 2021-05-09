@@ -1,6 +1,6 @@
-drop procedure Staf_GetRevenue;
+drop procedure Staf_GetRevenue_byMonth;
 delimiter //
-create procedure Staf_GetRevenue(token varchar(30), username varchar(60), startdate_string varchar(60), enddate_string varchar(60)) -- deprecated, is included with Staf_GetRevenue_ByMonth now
+create procedure Staf_GetRevenue_byMonth(token varchar(30), username varchar(60), startdate_string varchar(60), enddate_string varchar(60))
 begin
     DECLARE vusername varchar(60);
     DECLARE myAirline varchar(60);
@@ -11,7 +11,17 @@ begin
 			FROM airline_staff
             WHERE airline_staff.username = username
             INTO myAirline;
-            SELECT SUM(flight.base_price) as rev
+            SELECT DATE_FORMAT(ticket.sold_date, '%Y-%m') as mon, SUM(flight.base_price) as rev
+				FROM ticket
+				LEFT JOIN flight
+				ON ticket.flight_num = flight.flight_num
+					AND ticket.airline_name = flight.airline_name
+					AND ticket.dep_datetime = flight.dep_datetime
+				WHERE ticket.airline_name = myAirline
+					AND ticket.sold_date > timestamp(startdate_string)
+					AND ticket.sold_date <= timestamp(enddate_string)
+				GROUP BY mon;
+            SELECT SUM(flight.base_price) as total_rev
 				FROM ticket
 				LEFT JOIN flight
 				ON ticket.flight_num = flight.flight_num

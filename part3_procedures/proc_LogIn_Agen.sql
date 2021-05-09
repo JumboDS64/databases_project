@@ -8,7 +8,7 @@ begin
 	SELECT booking_agent.booking_agent_ID
     FROM booking_agent
     WHERE booking_agent.booking_agent_ID = id
-		AND booking_agent.password = pw
+		AND booking_agent.password = md5(pw)
 	INTO vid;
     IF (vid IS NOT NULL) THEN
 		IF (vtoken IS NULL) THEN

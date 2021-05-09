@@ -71,6 +71,40 @@ const server = http.createServer((request, response) => {
 				connection.query("CALL Staf_ViewFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_CreateFlight") {
 				connection.query("CALL Staf_CreateFlight(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("baseprice") + "\', \'" + url.searchParams.get("deploc") + "\', \'" + url.searchParams.get("depdate") + "\', \'" + url.searchParams.get("arrloc") + "\', \'" + url.searchParams.get("arrdate") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_staf_ChangeFlightStatus") {
+				connection.query("CALL Staf_ChangeFlightStatus(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("status") + "\', \'" + url.searchParams.get("flightnum") + "\', \'" + url.searchParams.get("deptime") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_staf_CreateAirplane") {
+				connection.query("CALL Staf_CreateAirplane(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("numseats") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_staf_CreateAirport") {
+				connection.query("CALL Staf_CreateAirport(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("name") + "\', \'" + url.searchParams.get("city") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_staf_ViewFlightReviews") {
+				connection.query("CALL Staf_ViewFlightRatings(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("flightnum") + "\', \'" + url.searchParams.get("deptime") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetAgen_Tix") {
+				connection.query("CALL Staf_GetTopAgen_Tix(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetAgen_Commish") {
+				connection.query("CALL Staf_GetTopAgen_Commish(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetTopCustomers") {
+				connection.query("CALL Staf_GetTopCustomers(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetCustomers") {
+				connection.query("CALL Staf_GetCustomers(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetCustFlights") {
+				connection.query("CALL Staf_GetCustFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("email") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetRevenue") {
+				connection.query("CALL Staf_GetRevenue(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetRevenue_byMonth") {
+				connection.query("CALL Staf_GetRevenue_byMonth(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetRevenue_byType") {
+				connection.query("CALL Staf_GetRevenue_byType(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_staf_GetTopDestinations") {
+				connection.query("CALL Staf_GetTopDestinations(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "get_gen_SearchFlights") {
+				connection.query("CALL Gen_SearchFlights(\'" + url.searchParams.get("deploc") + "\', \'" + url.searchParams.get("arrloc") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_cust_register") {
+				connection.query("CALL Register_Customer(\'" + url.searchParams.get("name") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("pw") + "\', " + url.searchParams.get("addr_buildnum") + ", \'" + url.searchParams.get("addr_street") + "\', \'" + url.searchParams.get("addr_city") + "\', \'" + url.searchParams.get("addr_state") + "\', \'" + url.searchParams.get("phonenum") + "\', \'" + url.searchParams.get("dob") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_agen_register") {
+				connection.query("CALL Register_BookingAgent(\'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("pw") + "\');", generalQueryFunc);
+			} else if(url.searchParams.get("case") == "post_staf_register") {
+				connection.query("CALL Register_AirlineStaff(\'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("airline_name") + "\', \'" + url.searchParams.get("pw") + "\', \'" + url.searchParams.get("first_name") + "\', \'" + url.searchParams.get("last_name") + "\', \'" + url.searchParams.get("dob") + "\');", generalQueryFunc);
 			}
 			connection.end();
 		} 

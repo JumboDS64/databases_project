@@ -8,7 +8,7 @@ begin
 	SELECT airline_staff.username
     FROM airline_staff
     WHERE airline_staff.username = username
-		AND airline_staff.password = pw
+		AND airline_staff.password = md5(pw)
 	INTO vusername;
     IF (vusername IS NOT NULL) THEN
 		IF (vtoken IS NULL) THEN

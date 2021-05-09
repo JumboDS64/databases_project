@@ -2,168 +2,278 @@
 <head>
 	<link rel="icon" href="favicon.ico">
 	<link rel="stylesheet" href="styles.css">
+	<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 	<script src="scripts.js"></script> 
 </head>
 <body onload="init();">
 	<div id="statusBar" class="statusBar"></div>
-	<div id="tabsBar" class="tabsBar">
-		<input type="button" onclick="toggleTab('tabGen');" value="General">
-		<input type="button" onclick="toggleTab('tabCust');" value="Customer">
-		<input type="button" onclick="toggleTab('tabAgen');" value="Booking Agent">
-		<input type="button" onclick="toggleTab('tabStaf');" value="Airline Staff">
-	</div>
-	<div id="tabGen" class="aTab" style="display: block;">
+	<div id="tabGen" style="display: block; float: left; width: 50%;">
 		<div id="tabGen_out" style="display: block;">
-			tabGen_out
-		</div>
-		<div id="tabGen_in" style="display: none;">
-			tabGen_in
+			<form>
+				<label for="gen_search_flights_deploc">Departure location:</label>
+				<input type="text" id="gen_search_flights_deploc" name="gen_search_flights_deploc"><br>
+				<label for="gen_search_flights_arrloc">Arrival location:</label>
+				<input type="text" id="gen_search_flights_arrloc" name="gen_search_flights_arrloc"><br>
+				<input type="button" onclick="request_gen_SearchFlights();" value="Search for flights">
+			</form>
+			<table id="genTable" class="tableN"></table>
 		</div>
 	</div>
-	<div id="tabCust" class="aTab" style="display: none;">
-		<div id="tabCust_out" style="display: block;">
-			<div>
-				<div>Customer login</div>
+	<div style="float: right; width: 50%;">
+		<div id="tabsBar" class="tabsBar">
+			<input type="button" onclick="toggleTab('tabCust');" value="Customer">
+			<input type="button" onclick="toggleTab('tabAgen');" value="Booking Agent">
+			<input type="button" onclick="toggleTab('tabStaf');" value="Airline Staff">
+		</div>
+		<div id="tabCust" class="aTab" style="display: none;">
+			<div id="tabCust_out" style="display: block;">
+				<div>
+					<div>Customer login</div>
+					<form>
+						<label for="login_cust_email">Email:</label>
+						<input type="text" id="login_cust_email" name="login_cust_email"><br>
+						<label for="login_cust_pw">Password:</label>
+						<input type="text" id="login_cust_pw" name="login_cust_pw"><br>
+						<input type="button" onclick="request_logIn(0);" value="Log in">
+					</form>
+					<div>Customer registration</div>
+					<form>
+						<label for="regi_cust_name">Name:</label>
+						<input type="text" id="regi_cust_name" name="regi_cust_name"><br>
+						<label for="regi_cust_email">Email:</label>
+						<input type="text" id="regi_cust_email" name="regi_cust_email"><br>
+						<label for="regi_cust_pw">Password:</label>
+						<input type="text" id="regi_cust_pw" name="regi_cust_pw"><br>
+						<label for="regi_cust_addr_buildnum">Building number:</label>
+						<input type="text" id="regi_cust_addr_buildnum" name="regi_cust_addr_buildnum"><br>
+						<label for="regi_cust_addr_street">Street:</label>
+						<input type="text" id="regi_cust_addr_street" name="regi_cust_addr_street"><br>
+						<label for="regi_cust_addr_city">City:</label>
+						<input type="text" id="regi_cust_addr_city" name="regi_cust_addr_city"><br>
+						<label for="regi_cust_addr_state">State:</label>
+						<input type="text" id="regi_cust_addr_state" name="regi_cust_addr_state"><br>
+						<label for="regi_cust_phonenum">Phone number:</label>
+						<input type="text" id="regi_cust_phonenum" name="regi_cust_phonenum"><br>
+						<label for="regi_cust_dob">Date of birth:</label>
+						<input type="text" id="regi_cust_dob" name="regi_cust_dob"><br>
+						<input type="button" onclick="request_cust_register();" value="Register">
+					</form>
+				</div>
+			</div>
+			<div id="tabCust_in" style="display: none;">
+				<input type="button" onclick="request_logOut(0);" value="Log out">
+				<button onclick="request_cust_ViewFlights();">Show purchased flights</button> 
 				<form>
-					<label for="login_cust_email">Email:</label>
-					<input type="text" id="login_cust_email" name="login_cust_email"><br>
-					<label for="login_cust_pw">Password:</label>
-					<input type="text" id="login_cust_pw" name="login_cust_pw"><br>
-					<input type="button" onclick="request_logIn(0);" value="Log in">
+					<label for="cust_search_flights_deploc">Departure location:</label>
+					<input type="text" id="cust_search_flights_deploc" name="cust_search_flights_deploc"><br>
+					<label for="cust_search_flights_depdate">Departure date:</label>
+					<input type="text" id="cust_search_flights_depdate" name="cust_search_flights_depdate"><br>
+					<label for="cust_search_flights_arrloc">Arrival location:</label>
+					<input type="text" id="cust_search_flights_arrloc" name="cust_search_flights_arrloc"><br>
+					<label for="cust_search_flights_arrdate">Arrival date:</label>
+					<input type="text" id="cust_search_flights_arrdate" name="cust_search_flights_arrdate"><br>
+					<input type="button" onclick="request_cust_SearchFlights();" value="Search for flights">
 				</form>
+				<form>
+					<label for="cust_purchase_ticket_flightnum">Flight number:</label>
+					<input type="text" id="cust_purchase_ticket_flightnum" name="cust_purchase_ticket_flightnum"><br>
+					<label for="cust_purchase_ticket_airline">Flight airline:</label>
+					<input type="text" id="cust_purchase_ticket_airline" name="cust_purchase_ticket_airline"><br>
+					<label for="cust_purchase_ticket_deptime">Flight departure time:</label>
+					<input type="text" id="cust_purchase_ticket_deptime" name="cust_purchase_ticket_deptime"><br>
+					<input type="button" onclick="request_cust_PurchaseTicket();" value="Purchase ticket">
+				</form>
+				<form>
+					<label for="cust_trackspending_start">Start date:</label>
+					<input type="text" id="cust_trackspending_start" name="cust_trackspending_start"><br>
+					<label for="cust_trackspending_end">End date:</label>
+					<input type="text" id="cust_trackspending_end" name="cust_trackspending_end"><br>
+					<input type="button" onclick="request_cust_TrackSpending();" value="Track spending">
+				</form>
+				<form>
+					<label for="cust_rateFlight_ticketID">Ticket ID:</label>
+					<input type="text" id="cust_rateFlight_ticketID" name="cust_rateFlight_ticketID"><br>
+					<label for="cust_rateFlight_rating">Rating:</label>
+					<input type="text" id="cust_rateFlight_rating" name="cust_rateFlight_rating"><br>
+					<label for="cust_rateFlight_comment">Comment:</label>
+					<input type="text" id="cust_rateFlight_comment" name="cust_rateFlight_comment"><br>
+					<input type="button" onclick="request_cust_RateFlight();" value="Rate flight">
+				</form>
+				<table id="custTable" class="tableN"></table>
+				<div id="custChart" class="chartDiv"></div><br>
+				<div id="custChart2" class="chartDiv"></div>
 			</div>
 		</div>
-		<div id="tabCust_in" style="display: none;">
-			<input type="button" onclick="request_logOut(0);" value="Log out">
-			<button onclick="request_cust_ViewFlights();">Show purchased flights</button> 
-			<form>
-				<label for="cust_search_flights_deploc">Departure location:</label>
-				<input type="text" id="cust_search_flights_deploc" name="cust_search_flights_deploc"><br>
-				<label for="cust_search_flights_depdate">Departure date:</label>
-				<input type="text" id="cust_search_flights_depdate" name="cust_search_flights_depdate"><br>
-				<label for="cust_search_flights_arrloc">Arrival location:</label>
-				<input type="text" id="cust_search_flights_arrloc" name="cust_search_flights_arrloc"><br>
-				<label for="cust_search_flights_arrdate">Arrival date:</label>
-				<input type="text" id="cust_search_flights_arrdate" name="cust_search_flights_arrdate"><br>
-				<input type="button" onclick="request_cust_SearchFlights();" value="Search for flights">
-			</form>
-			<form>
-				<label for="cust_purchase_ticket_flightnum">Flight number:</label>
-				<input type="text" id="cust_purchase_ticket_flightnum" name="cust_purchase_ticket_flightnum"><br>
-				<label for="cust_purchase_ticket_airline">Flight airline:</label>
-				<input type="text" id="cust_purchase_ticket_airline" name="cust_purchase_ticket_airline"><br>
-				<label for="cust_purchase_ticket_deptime">Flight departure time:</label>
-				<input type="text" id="cust_purchase_ticket_deptime" name="cust_purchase_ticket_deptime"><br>
-				<input type="button" onclick="request_cust_PurchaseTicket();" value="Purchase ticket">
-			</form>
-			<form>
-				<label for="cust_trackspending_start">Start date:</label>
-				<input type="text" id="cust_trackspending_start" name="cust_trackspending_start"><br>
-				<label for="cust_trackspending_end">End date:</label>
-				<input type="text" id="cust_trackspending_end" name="cust_trackspending_end"><br>
-				<input type="button" onclick="request_cust_TrackSpending();" value="Track spending">
-			</form>
-			<form>
-				<label for="cust_rateFlight_ticketID">Ticket ID:</label>
-				<input type="text" id="cust_rateFlight_ticketID" name="cust_rateFlight_ticketID"><br>
-				<label for="cust_rateFlight_rating">Rating:</label>
-				<input type="text" id="cust_rateFlight_rating" name="cust_rateFlight_rating"><br>
-				<label for="cust_rateFlight_comment">Comment:</label>
-				<input type="text" id="cust_rateFlight_comment" name="cust_rateFlight_comment"><br>
-				<input type="button" onclick="request_cust_RateFlight();" value="Rate flight">
-			</form>
-			<table id="custTable" class="tableN"></table>
-		</div>
-	</div>
-	<div id="tabAgen" class="aTab" style="display: none;">
-		<div id="tabAgen_out" style="display: block;">
-			<div>
-				<div>Booking agent login</div>
+		<div id="tabAgen" class="aTab" style="display: none;">
+			<div id="tabAgen_out" style="display: block;">
+				<div>
+					<div>Booking agent login</div>
+					<form>
+						<label for="login_agen_id">ID:</label>
+						<input type="text" id="login_agen_id" name="login_agen_id"><br>
+						<label for="login_agen_pw">Password:</label>
+						<input type="text" id="login_agen_pw" name="login_agen_pw"><br>
+						<input type="button" onclick="request_logIn(1);" value="Log in">
+					</form>
+					<div>Booking agent registration</div>
+					<form>
+						<label for="regi_agen_email">Email:</label>
+						<input type="text" id="regi_agen_email" name="regi_agen_email"><br>
+						<label for="regi_agen_pw">Password:</label>
+						<input type="text" id="regi_agen_pw" name="regi_agen_pw"><br>
+						<input type="button" onclick="request_agen_register();" value="Register">
+					</form>
+				</div>
+			</div>
+			<div id="tabAgen_in" style="display: none;">
+				<input type="button" onclick="request_logOut(1);" value="Log out">
+				<button onclick="request_agen_ViewFlights();">Show purchased flights</button>
 				<form>
-					<label for="login_agen_id">ID:</label>
-					<input type="text" id="login_agen_id" name="login_agen_id"><br>
-					<label for="login_agen_pw">Password:</label>
-					<input type="text" id="login_agen_pw" name="login_agen_pw"><br>
-					<input type="button" onclick="request_logIn(1);" value="Log in">
+					<label for="agen_search_flights_deploc">Departure location:</label>
+					<input type="text" id="agen_search_flights_deploc" name="agen_search_flights_deploc"><br>
+					<label for="agen_search_flights_depdate">Departure date:</label>
+					<input type="text" id="agen_search_flights_depdate" name="agen_search_flights_depdate"><br>
+					<label for="agen_search_flights_arrloc">Arrival location:</label>
+					<input type="text" id="agen_search_flights_arrloc" name="agen_search_flights_arrloc"><br>
+					<label for="agen_search_flights_arrdate">Arrival date:</label>
+					<input type="text" id="agen_search_flights_arrdate" name="agen_search_flights_arrdate"><br>
+					<input type="button" onclick="request_agen_SearchFlights();" value="Search for flights">
 				</form>
+				<form>
+					<label for="agen_purchase_ticket_email">Customer email:</label>
+					<input type="text" id="agen_purchase_ticket_email" name="agen_purchase_ticket_email"><br>
+					<label for="agen_purchase_ticket_flightnum">Flight number:</label>
+					<input type="text" id="agen_purchase_ticket_flightnum" name="agen_purchase_ticket_flightnum"><br>
+					<label for="agen_purchase_ticket_airline">Flight airline:</label>
+					<input type="text" id="agen_purchase_ticket_airline" name="agen_purchase_ticket_airline"><br>
+					<label for="agen_purchase_ticket_deptime">Flight departure time:</label>
+					<input type="text" id="agen_purchase_ticket_deptime" name="agen_purchase_ticket_deptime"><br>
+					<input type="button" onclick="request_agen_PurchaseTicket();" value="Purchase ticket">
+				</form>
+				<form>
+					<label for="agen_trackspending_start">Start date:</label>
+					<input type="text" id="agen_trackspending_start" name="agen_trackspending_start"><br>
+					<label for="agen_trackspending_start">End date:</label>
+					<input type="text" id="agen_trackspending_start" name="agen_trackspending_start"><br>
+					<input type="button" onclick="request_agen_TrackSpending();" value="View commission">
+				</form>
+				<button onclick="request_agen_GetTopCustomers_Tix();">Top clients by tickets</button>
+				<button onclick="request_agen_GetTopCustomers_Commish();">Top clients by commision</button>
+				<table id="agenTable" class="tableN"></table>
+				<div id="agenChart" class="chartDiv"></div><br>
+				<div id="agen2Chart" class="chartDiv"></div>
 			</div>
 		</div>
-		<div id="tabAgen_in" style="display: none;">
-			<input type="button" onclick="request_logOut(1);" value="Log out">
-			<button onclick="request_agen_ViewFlights();">Show purchased flights</button>
-			<form>
-				<label for="agen_search_flights_deploc">Departure location:</label>
-				<input type="text" id="agen_search_flights_deploc" name="agen_search_flights_deploc"><br>
-				<label for="agen_search_flights_depdate">Departure date:</label>
-				<input type="text" id="agen_search_flights_depdate" name="agen_search_flights_depdate"><br>
-				<label for="agen_search_flights_arrloc">Arrival location:</label>
-				<input type="text" id="agen_search_flights_arrloc" name="agen_search_flights_arrloc"><br>
-				<label for="agen_search_flights_arrdate">Arrival date:</label>
-				<input type="text" id="agen_search_flights_arrdate" name="agen_search_flights_arrdate"><br>
-				<input type="button" onclick="request_agen_SearchFlights();" value="Search for flights">
-			</form>
-			<form>
-				<label for="agen_purchase_ticket_email">Customer email:</label>
-				<input type="text" id="agen_purchase_ticket_email" name="agen_purchase_ticket_email"><br>
-				<label for="agen_purchase_ticket_flightnum">Flight number:</label>
-				<input type="text" id="agen_purchase_ticket_flightnum" name="agen_purchase_ticket_flightnum"><br>
-				<label for="agen_purchase_ticket_airline">Flight airline:</label>
-				<input type="text" id="agen_purchase_ticket_airline" name="agen_purchase_ticket_airline"><br>
-				<label for="agen_purchase_ticket_deptime">Flight departure time:</label>
-				<input type="text" id="agen_purchase_ticket_deptime" name="agen_purchase_ticket_deptime"><br>
-				<input type="button" onclick="request_agen_PurchaseTicket();" value="Purchase ticket">
-			</form>
-			<form>
-				<label for="agen_trackspending_start">Start date:</label>
-				<input type="text" id="agen_trackspending_start" name="agen_trackspending_start"><br>
-				<label for="agen_trackspending_start">End date:</label>
-				<input type="text" id="agen_trackspending_start" name="agen_trackspending_start"><br>
-				<input type="button" onclick="request_agen_TrackSpending();" value="View commission">
-			</form>
-			<button onclick="request_agen_GetTopCustomers_Tix();">Top clients by tickets</button>
-			<button onclick="request_agen_GetTopCustomers_Commish();">Top clients by commision</button>
-			<table id="agenTable" class="tableN"></table>
-		</div>
-	</div>
-	<div id="tabStaf" class="aTab" style="display: none;">
-		<div id="tabStaf_out" style="display: block;">
-			<div>
-				<div>Airline staff login</div>
+		<div id="tabStaf" class="aTab" style="display: none;">
+			<div id="tabStaf_out" style="display: block;">
+				<div>
+					<div>Airline staff login</div>
+					<form>
+						<label for="login_staf_username">Username:</label>
+						<input type="text" id="login_staf_username" name="login_staf_username"><br>
+						<label for="login_staf_pw">Password:</label>
+						<input type="text" id="login_staf_pw" name="login_staf_pw"><br>
+						<input type="button" onclick="request_logIn(2);" value="Log in">
+					</form>
+					<div>Airline staff registration</div>
+					<form>
+						<label for="regi_staf_username">Username:</label>
+						<input type="text" id="regi_staf_username" name="regi_staf_username"><br>
+						<label for="regi_staf_airlinename">Airline name:</label>
+						<input type="text" id="regi_staf_airlinename" name="regi_staf_airlinename"><br>
+						<label for="regi_staf_pw">Password:</label>
+						<input type="text" id="regi_staf_pw" name="regi_staf_pw"><br>
+						<label for="regi_staf_firstname">First name:</label>
+						<input type="text" id="regi_staf_firstname" name="regi_staf_firstname"><br>
+						<label for="regi_staf_lastname">Last name:</label>
+						<input type="text" id="regi_staf_lastname" name="regi_staf_lastname"><br>
+						<label for="regi_staf_dob">Date of birth:</label>
+						<input type="text" id="regi_staf_dob" name="regi_staf_dob"><br>
+						<input type="button" onclick="request_staf_register();" value="Register">
+					</form>
+				</div>
+			</div>
+			<div id="tabStaf_in" style="display: none;">
+				<input type="button" onclick="request_logOut(2);" value="Log out">
 				<form>
-					<label for="login_staf_username">Username:</label>
-					<input type="text" id="login_staf_username" name="login_staf_username"><br>
-					<label for="login_staf_pw">Password:</label>
-					<input type="text" id="login_staf_pw" name="login_staf_pw"><br>
-					<input type="button" onclick="request_logIn(2);" value="Log in">
+					<label for="staf_viewflights_start">Start date:</label>
+					<input type="text" id="staf_viewflights_start" name="staf_viewflights_start"><br>
+					<label for="staf_viewflights_end">End date:</label>
+					<input type="text" id="staf_viewflights_end" name="staf_viewflights_end"><br>
+					<input type="button" onclick="request_staf_ViewFlights();" value="View flights">
+					<input type="button" onclick="request_staf_GetRevenue_byMonth();" value="View revenue">
 				</form>
+				<form>
+					<input type="button" onclick="request_staf_GetRevenue_byType();" value="View revenue by source">
+				</form>
+				<form>
+					<input type="button" onclick="request_staf_GetTopDestinations();" value="View top 3 destinations">
+				</form>
+				<form>
+					<label for="staf_createflight_baseprice">Base price:</label>
+					<input type="text" id="staf_createflight_baseprice" name="staf_createflight_baseprice"><br>
+					<label for="staf_createflight_deploc">Departure airport:</label>
+					<input type="text" id="staf_createflight_deploc" name="staf_createflight_deploc"><br>
+					<label for="staf_createflight_depdate">Departure date:</label>
+					<input type="text" id="staf_createflight_depdate" name="staf_createflight_depdate"><br>
+					<label for="staf_createflight_arrloc">Arrival airport:</label>
+					<input type="text" id="staf_createflight_arrloc" name="staf_createflight_arrloc"><br>
+					<label for="staf_createflight_arrdate">Arrival date:</label>
+					<input type="text" id="staf_createflight_arrdate" name="staf_createflight_arrdate"><br>
+					<input type="button" onclick="request_staf_CreateFlight();" value="Register flight">
+				</form>
+				<form>
+					<label for="staf_changeflightstatus_status">Status:</label>
+					<input type="text" id="staf_changeflightstatus_status" name="staf_changeflightstatus_status"><br>
+					<label for="staf_changeflightstatus_flightnum">Flight number:</label>
+					<input type="text" id="staf_changeflightstatus_flightnum" name="staf_changeflightstatus_flightnum"><br>
+					<label for="staf_changeflightstatus_deptime">Flight departure time:</label>
+					<input type="text" id="staf_changeflightstatus_deptime" name="staf_changeflightstatus_deptime"><br>
+					<input type="button" onclick="request_staf_ChangeFlightStatus();" value="Change flight status">
+				</form>
+				<form>
+					<label for="staf_createairplane_numseats">Num. Seats:</label>
+					<input type="text" id="staf_createairplane_numseats" name="staf_createairplane_numseats"><br>
+					<input type="button" onclick="request_staf_CreateAirplane();" value="Register airplane">
+				</form>
+				<form>
+					<label for="staf_createairport_name">Name:</label>
+					<input type="text" id="staf_createairport_name" name="staf_createairport_name"><br>
+					<label for="staf_createairport_city">City:</label>
+					<input type="text" id="staf_createairport_city" name="staf_createairport_city"><br>
+					<input type="button" onclick="request_staf_CreateAirport();" value="Register airport">
+				</form>
+				<form>
+					<label for="staf_viewflightreviews_flightnum">Flight number:</label>
+					<input type="text" id="staf_viewflightreviews_flightnum" name="staf_viewflightreviews_flightnum"><br>
+					<label for="staf_viewflightreviews_deptime">Flight departure time:</label>
+					<input type="text" id="staf_viewflightreviews_deptime" name="staf_viewflightreviews_deptime"><br>
+					<input type="button" onclick="request_staf_ViewFlightReviews();" value="View flight ratings">
+				</form>
+				<form>
+					<input type="button" onclick="request_staf_GetAgen_Tix();" value="View top 5 booking agents by number of ticket sales">
+				</form>
+				<form>
+					<input type="button" onclick="request_staf_GetAgen_Commish();" value="View top 5 booking agents by commission earned">
+				</form>
+				<form>
+					<input type="button" onclick="request_staf_GetTopCustomers();" value="View top 5 customers">
+				</form>
+				<form>
+					<input type="button" onclick="request_staf_GetCustomers();" value="View all customers">
+				</form>
+				<form>
+					<label for="staf_viewcustomerflights_email">Customer email:</label>
+					<input type="text" id="staf_viewcustomerflights_email" name="staf_viewcustomerflights_email"><br>
+					<input type="button" onclick="request_staf_GetCustFlights();" value="View customer's flights">
+				</form>
+				<table id="stafTable" class="tableN"></table>
+				<div id="stafChart" class="chartDiv"></div><br>
+				<div id="stafChart2" class="chartDiv"></div>
 			</div>
 		</div>
-		<div id="tabStaf_in" style="display: none;">
-			<input type="button" onclick="request_logOut(2);" value="Log out">
-			<form>
-				<label for="staf_viewflights_start">Start date:</label>
-				<input type="text" id="staf_viewflights_start" name="staf_viewflights_start"><br>
-				<label for="staf_viewflights_end">End date:</label>
-				<input type="text" id="staf_viewflights_end" name="staf_viewflights_end"><br>
-				<input type="button" onclick="request_staf_ViewFlights();" value="View flights">
-			</form>
-			<form>
-				<label for="staf_createflight_baseprice">Base price:</label>
-				<input type="text" id="staf_createflight_baseprice" name="staf_createflight_baseprice"><br>
-				<label for="staf_createflight_deploc">Departure airport:</label>
-				<input type="text" id="staf_createflight_deploc" name="staf_createflight_deploc"><br>
-				<label for="staf_createflight_depdate">Departure date:</label>
-				<input type="text" id="staf_createflight_depdate" name="staf_createflight_depdate"><br>
-				<label for="staf_createflight_arrloc">Arrival airport:</label>
-				<input type="text" id="staf_createflight_arrloc" name="staf_createflight_arrloc"><br>
-				<label for="staf_createflight_arrdate">Arrival date:</label>
-				<input type="text" id="staf_createflight_arrdate" name="staf_createflight_arrdate"><br>
-				<input type="button" onclick="request_staf_CreateFlight();" value="Create flight">
-			</form>
-			<table id="stafTable" class="tableN"></table>
-		</div>
 	</div>
-	 <script>
-	 </script>
+	<script>
+	</script>
 </body>
 </html>

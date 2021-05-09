@@ -6,7 +6,7 @@ begin
     SELECT email INTO vemail;
 	CALL CheckForSession_Cust(token, vemail);
     IF (vemail IS NOT NULL) THEN
-		SELECT DATE_FORMAT(ticket.sold_date, '%Y-%m'), SUM(flight.base_price)
+		SELECT DATE_FORMAT(ticket.sold_date, '%Y-%m') as mon, SUM(flight.base_price) as spent
 		FROM ticket
 		LEFT JOIN flight
 		ON ticket.flight_num = flight.flight_num
@@ -15,7 +15,7 @@ begin
 		WHERE ticket.customer_email = email
 			AND ticket.sold_date >= timestamp(startdate_string)
 			AND ticket.sold_date < timestamp(enddate_string)
-		GROUP BY DATE_FORMAT(ticket.sold_date, '%Y-%m');
+		GROUP BY mon;
 	END IF;
 end //
 delimiter ;
