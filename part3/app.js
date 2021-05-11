@@ -12,11 +12,12 @@ const port = 3000;
 const server = http.createServer((request, response) => {
 	var url = new URL(request.url, `http://${request.headers.host}`);
 	//console.log(url.pathname);
-	if(/^\/[a-zA-Z0-9\/]*.html$/.test(url.pathname)) {
+	var extension = url.pathname.substring(url.pathname.lastIndexOf("."), url.pathname.length);
+	if(extension == ".html") {
 		sendFileContent(response, url.pathname.substring(1), "text/html");
-	} else if(/^\/[a-zA-Z0-9\/]*.css$/.test(url.pathname)){
+	} else if(extension == ".css"){
 		sendFileContent(response, url.pathname.substring(1), "text/css");
-	} else if(/^\/[a-zA-Z0-9\/]*.js$/.test(url.pathname)){
+	} else if(extension == ".js"){
 		sendFileContent(response, url.pathname.substring(1), "text/javascript");
 	} else if(url.pathname == "/request") {
 		if(url.searchParams != null) {
@@ -39,72 +40,72 @@ const server = http.createServer((request, response) => {
 				else if(type == "1") proc = "LogIn_Agen";
 				else if(type == "2") proc = "LogIn_Staf";
 				if(url.searchParams.get("token") == "null") {
-					connection.query("CALL "+proc+"(NULL, \'" + url.searchParams.get("key") + "\', \'" + url.searchParams.get("password") + "\');", generalQueryFunc);
+					connection.query("CALL "+proc+"(NULL, " + connection.escape(url.searchParams.get("key")) + ", " + connection.escape(url.searchParams.get("password")) + ");", generalQueryFunc);
 				} else {
-					connection.query("CALL "+proc+"(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("key") + "\', \'" + url.searchParams.get("password") + "\');", generalQueryFunc);
+					connection.query("CALL "+proc+"(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("key")) + ", " + connection.escape(url.searchParams.get("password")) + ");", generalQueryFunc);
 				}
 			} else if(url.searchParams.get("case") == "postLogOut") {
-				connection.query("CALL LogOut(\'" + url.searchParams.get("token") + "\')", generalQueryFunc);
+				connection.query("CALL LogOut(" + connection.escape(url.searchParams.get("token")) + ")", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_cust_ViewFlights") {
-				connection.query("CALL Cust_ViewFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("email") + "\');", generalQueryFunc);
+				connection.query("CALL Cust_ViewFlights(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("email")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_cust_SearchFlights") {
-				connection.query("CALL Cust_SearchFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("deploc") + "\', \'" + url.searchParams.get("depdate") + "\', \'" + url.searchParams.get("arrloc") + "\', \'" + url.searchParams.get("arrdate") + "\');", generalQueryFunc);
+				connection.query("CALL Cust_SearchFlights(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("email")) + ", " + connection.escape(url.searchParams.get("deploc")) + ", " + connection.escape(url.searchParams.get("depdate")) + ", " + connection.escape(url.searchParams.get("arrloc")) + ", " + connection.escape(url.searchParams.get("arrdate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_cust_PurchaseTicket") {
-				connection.query("CALL Cust_PurchaseTicket(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("flightnum") + "\', \'" + url.searchParams.get("airline") + "\', \'" + url.searchParams.get("deptime") + "\');", generalQueryFunc);
+				connection.query("CALL Cust_PurchaseTicket(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("email")) + ", " + connection.escape(url.searchParams.get("flightnum")) + ", " + connection.escape(url.searchParams.get("airline")) + ", " + connection.escape(url.searchParams.get("deptime")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_cust_RateFlight") {
-				connection.query("CALL Cust_RateFlight(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("ticketID") + "\', " + url.searchParams.get("rating") + ", \'" + url.searchParams.get("comment") + "\');", generalQueryFunc);
+				connection.query("CALL Cust_RateFlight(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("email")) + ", " + url.searchParams.get("ticketID") + ", " + connection.escape(url.searchParams.get("rating")) + ", " + connection.escape(url.searchParams.get("comment")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_cust_TrackSpending") {
-				connection.query("CALL Cust_TrackSpending(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+				connection.query("CALL Cust_TrackSpending(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("email")) + ", " + connection.escape(url.searchParams.get("startdate")) + ", " + connection.escape(url.searchParams.get("enddate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_agen_ViewFlights") {
-				connection.query("CALL Agen_ViewFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("id") + "\');", generalQueryFunc);
+				connection.query("CALL Agen_ViewFlights(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("id")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_agen_SearchFlights") {
-				connection.query("CALL Agen_SearchFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("id") + "\', \'" + url.searchParams.get("deploc") + "\', \'" + url.searchParams.get("depdate") + "\', \'" + url.searchParams.get("arrloc") + "\', \'" + url.searchParams.get("arrdate") + "\');", generalQueryFunc);
+				connection.query("CALL Agen_SearchFlights(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("id")) + ", " + connection.escape(url.searchParams.get("deploc")) + ", " + connection.escape(url.searchParams.get("depdate")) + ", " + connection.escape(url.searchParams.get("arrloc")) + ", " + connection.escape(url.searchParams.get("arrdate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_agen_PurchaseTicket") {
-				connection.query("CALL Agen_PurchaseTicket(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("id") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("flightnum") + "\', \'" + url.searchParams.get("airline") + "\', \'" + url.searchParams.get("deptime") + "\');", generalQueryFunc);
+				connection.query("CALL Agen_PurchaseTicket(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("id")) + ", " + connection.escape(url.searchParams.get("email")) + ", " + connection.escape(url.searchParams.get("flightnum")) + ", " + connection.escape(url.searchParams.get("airline")) + ", " + connection.escape(url.searchParams.get("deptime")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_agen_TrackSpending") {
-				connection.query("CALL Agen_TrackSpending(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("id") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+				connection.query("CALL Agen_TrackSpending(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("id")) + ", " + connection.escape(url.searchParams.get("startdate")) + ", " + connection.escape(url.searchParams.get("enddate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_agen_GetTopCustomers_Tix") {
-				connection.query("CALL Agen_GetTopCustomers_Tix(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("id") + "\');", generalQueryFunc);
+				connection.query("CALL Agen_GetTopCustomers_Tix(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("id")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_agen_GetTopCustomers_Commish") {
-				connection.query("CALL Agen_GetTopCustomers_Commish(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("id") + "\');", generalQueryFunc);
+				connection.query("CALL Agen_GetTopCustomers_Commish(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("id")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_ViewFlights") {
-				connection.query("CALL Staf_ViewFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_ViewFlights(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("startdate")) + ", " + connection.escape(url.searchParams.get("enddate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_CreateFlight") {
-				connection.query("CALL Staf_CreateFlight(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("baseprice") + "\', \'" + url.searchParams.get("deploc") + "\', \'" + url.searchParams.get("depdate") + "\', \'" + url.searchParams.get("arrloc") + "\', \'" + url.searchParams.get("arrdate") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_CreateFlight(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("baseprice")) + ", " + connection.escape(url.searchParams.get("deploc")) + ", " + connection.escape(url.searchParams.get("depdate")) + ", " + connection.escape(url.searchParams.get("arrloc")) + ", " + connection.escape(url.searchParams.get("arrdate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_ChangeFlightStatus") {
-				connection.query("CALL Staf_ChangeFlightStatus(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("status") + "\', \'" + url.searchParams.get("flightnum") + "\', \'" + url.searchParams.get("deptime") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_ChangeFlightStatus(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("status")) + ", " + connection.escape(url.searchParams.get("flightnum")) + ", " + connection.escape(url.searchParams.get("deptime")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_CreateAirplane") {
-				connection.query("CALL Staf_CreateAirplane(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("numseats") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_CreateAirplane(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("numseats")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_CreateAirport") {
-				connection.query("CALL Staf_CreateAirport(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("name") + "\', \'" + url.searchParams.get("city") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_CreateAirport(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("name")) + ", " + connection.escape(url.searchParams.get("city")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_ViewFlightReviews") {
-				connection.query("CALL Staf_ViewFlightRatings(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("flightnum") + "\', \'" + url.searchParams.get("deptime") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_ViewFlightRatings(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("flightnum")) + ", " + connection.escape(url.searchParams.get("deptime")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetAgen_Tix") {
-				connection.query("CALL Staf_GetTopAgen_Tix(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetTopAgen_Tix(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetAgen_Commish") {
-				connection.query("CALL Staf_GetTopAgen_Commish(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetTopAgen_Commish(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetTopCustomers") {
-				connection.query("CALL Staf_GetTopCustomers(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetTopCustomers(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetCustomers") {
-				connection.query("CALL Staf_GetCustomers(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetCustomers(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetCustFlights") {
-				connection.query("CALL Staf_GetCustFlights(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("email") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetCustFlights(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("email")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetRevenue") {
-				connection.query("CALL Staf_GetRevenue(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetRevenue(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("startdate")) + ", " + connection.escape(url.searchParams.get("enddate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetRevenue_byMonth") {
-				connection.query("CALL Staf_GetRevenue_byMonth(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("startdate") + "\', \'" + url.searchParams.get("enddate") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetRevenue_byMonth(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ", " + connection.escape(url.searchParams.get("startdate")) + ", " + connection.escape(url.searchParams.get("enddate")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetRevenue_byType") {
-				connection.query("CALL Staf_GetRevenue_byType(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetRevenue_byType(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_staf_GetTopDestinations") {
-				connection.query("CALL Staf_GetTopDestinations(\'" + url.searchParams.get("token") + "\', \'" + url.searchParams.get("username") + "\');", generalQueryFunc);
+				connection.query("CALL Staf_GetTopDestinations(" + connection.escape(url.searchParams.get("token")) + ", " + connection.escape(url.searchParams.get("username")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "get_gen_SearchFlights") {
-				connection.query("CALL Gen_SearchFlights(\'" + url.searchParams.get("deploc") + "\', \'" + url.searchParams.get("arrloc") + "\');", generalQueryFunc);
+				connection.query("CALL Gen_SearchFlights(" + connection.escape(url.searchParams.get("deploc")) + ", " + connection.escape(url.searchParams.get("arrloc")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_cust_register") {
-				connection.query("CALL Register_Customer(\'" + url.searchParams.get("name") + "\', \'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("pw") + "\', " + url.searchParams.get("addr_buildnum") + ", \'" + url.searchParams.get("addr_street") + "\', \'" + url.searchParams.get("addr_city") + "\', \'" + url.searchParams.get("addr_state") + "\', \'" + url.searchParams.get("phonenum") + "\', \'" + url.searchParams.get("dob") + "\');", generalQueryFunc);
+				connection.query("CALL Register_Customer(" + connection.escape(url.searchParams.get("name")) + ", " + connection.escape(url.searchParams.get("email")) + ", " + connection.escape(url.searchParams.get("pw")) + ", " + url.searchParams.get("addr_buildnum") + ", " + url.searchParams.get("addr_street") + ", " + url.searchParams.get("addr_city") + ", " + url.searchParams.get("addr_state") + ", " + connection.escape(url.searchParams.get("phonenum")) + ", " + connection.escape(url.searchParams.get("dob")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_agen_register") {
-				connection.query("CALL Register_BookingAgent(\'" + url.searchParams.get("email") + "\', \'" + url.searchParams.get("pw") + "\');", generalQueryFunc);
+				connection.query("CALL Register_BookingAgent(" + connection.escape(url.searchParams.get("email")) + ", " + connection.escape(url.searchParams.get("pw")) + ");", generalQueryFunc);
 			} else if(url.searchParams.get("case") == "post_staf_register") {
-				connection.query("CALL Register_AirlineStaff(\'" + url.searchParams.get("username") + "\', \'" + url.searchParams.get("airline_name") + "\', \'" + url.searchParams.get("pw") + "\', \'" + url.searchParams.get("first_name") + "\', \'" + url.searchParams.get("last_name") + "\', \'" + url.searchParams.get("dob") + "\');", generalQueryFunc);
+				connection.query("CALL Register_AirlineStaff(" + connection.escape(url.searchParams.get("username")) + ", " + url.searchParams.get("airline_name") + ", " + connection.escape(url.searchParams.get("pw")) + ", " + url.searchParams.get("first_name") + ", " + url.searchParams.get("last_name") + ", " + connection.escape(url.searchParams.get("dob")) + ");", generalQueryFunc);
 			}
 			connection.end();
 		} 
